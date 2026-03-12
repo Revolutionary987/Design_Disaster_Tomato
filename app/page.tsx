@@ -172,12 +172,11 @@ export default function DeepDarkCommerce() {
   };
 
   const handleCheckoutHover = () => {
-    if (Math.random() > 0.3) {
-      setCheckoutPos({
-        x: (Math.random() - 0.5) * 400,
-        y: (Math.random() - 0.5) * 100
-      });
-    }
+    // 100% chance to jump away
+    setCheckoutPos({
+      x: (Math.random() - 0.5) * 800,
+      y: (Math.random() - 1) * 300
+    });
   };
 
   const closePopup = (id: number, index: number, e: React.MouseEvent) => {
@@ -353,19 +352,17 @@ export default function DeepDarkCommerce() {
             <motion.div 
               className="absolute left-1/2 my-20 z-50 inline-block"
               animate={{ x: checkoutPos.x, y: checkoutPos.y }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
               style={{ x: "-50%" }}
             >
-              {/* UX VIOLATION: Discoverability / Signifiers. Checkout button is stripped of all visual button signifiers and made extremely hard to click physically via pointer-events blocking overlay. */}
+              {/* UX VIOLATION: User Control. The checkout button actively evades the mouse. */}
               <div className="relative inline-block cursor-pointer">
                 <button 
                   onMouseEnter={handleCheckoutHover}
-                  className="bg-transparent text-neutral-500 font-serif lowercase text-sm cursor-text focus:outline-none"
+                  className="bg-red-600 hover:bg-red-800 text-white font-black uppercase tracking-widest text-2xl py-6 px-12 border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] transition-colors focus:outline-none"
                 >
-                  maybe proceed to checkout if you agree with the above terms
+                  Proceed
                 </button>
-                {/* 90% impenetrable deadzone overlaying the text to make it unclickable except at edges */}
-                <div className="absolute inset-0 m-auto w-[90%] h-full z-10" onMouseEnter={handleCheckoutHover}></div>
               </div>
             </motion.div>
             
@@ -392,12 +389,24 @@ export default function DeepDarkCommerce() {
                 {equation.equation}
               </p>
               <div className="flex flex-col gap-4">
-                <input 
-                  type="number" step="0.01"
-                  value={captchaInput} onChange={e => setCaptchaInput(e.target.value)}
-                  placeholder="Enter 'x' (2 decimal places)"
-                  className="w-full border-4 border-black p-4 font-mono focus:bg-yellow-100 outline-none text-xl font-bold"
-                />
+                {/* UX VIOLATION: Efficiency & Error Prevention. Forcing users to click +0.1 and -0.1 dozens of times to reach the correct answer. */}
+                <div className="flex bg-white border-4 border-black p-6 gap-8 justify-center items-center">
+                  <button 
+                    onClick={() => setCaptchaInput((prev) => (parseFloat(prev || "0") - 0.1).toFixed(2))}
+                    className="w-20 h-20 bg-red-600 text-white font-black text-4xl border-4 border-black hover:bg-red-800 shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 active:scale-95 transition-all focus:outline-none"
+                  >
+                    -
+                  </button>
+                  <span className="font-mono font-black text-6xl text-black min-w-[160px] text-center border-b-4 border-black pb-2">
+                    {parseFloat(captchaInput || "0").toFixed(1)}
+                  </span>
+                  <button 
+                    onClick={() => setCaptchaInput((prev) => (parseFloat(prev || "0") + 0.1).toFixed(2))}
+                    className="w-20 h-20 bg-green-600 text-white font-black text-4xl border-4 border-black hover:bg-green-800 shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] hover:translate-y-1 hover:translate-x-1 active:scale-95 transition-all focus:outline-none"
+                  >
+                    +
+                  </button>
+                </div>
                 {captchaError && <span className="text-sm text-red-600 font-black bg-white p-2 border-2 border-red-600 block">{captchaError}</span>}
                 <div className="flex gap-4 mt-6">
                   <button onClick={() => setCaptchaProduct(null)} className="flex-1 bg-white text-black border-4 border-black p-4 font-black uppercase hover:bg-neutral-200">Abandon Cart</button>
@@ -464,16 +473,14 @@ function ProductCard({ product, onAdd }: { product: Product, onAdd: (p: Product)
         STATUS: {eta}
       </div>
       
-      {/* UX VIOLATION: Discoverability / Fitts's Law. Plain text button overlaid with invisible blocker to sabotage clicks. */}
+      {/* UX VIOLATION: Consistency. A button that actually looks like a button but still uses terrifying colors */}
       <div className="mt-auto relative inline-block text-center cursor-crosshair">
         <button 
           onClick={() => onAdd(product)}
-          className="bg-transparent text-neutral-500 lowercase font-serif italic text-sm border-none focus:outline-none w-full"
+          className="bg-red-600 hover:bg-red-800 text-white font-black uppercase tracking-widest text-sm py-4 w-full border-4 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all"
         >
-          add this specific item to your digital cart
+          Add to Cart
         </button>
-        {/* Absolute blocking element across the center 80% to destroy standard target hits */}
-        <div className="absolute inset-x-[10%] inset-y-0 z-10" title="Dead Zone"></div>
       </div>
     </div>
   );
