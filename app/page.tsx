@@ -339,9 +339,29 @@ export default function DeepDarkCommerce() {
                 ))}
               </ul>
             )}
+            
+            {/* The Evasive Checkout Button is now inside the Cart box itself */}
+            <div className="mt-16 h-40 relative w-full flex items-center justify-center border-4 border-dashed border-red-500 bg-red-50 overflow-visible">
+              <h2 className="absolute top-2 text-red-300 font-black uppercase text-xl tracking-[1em] z-0">DANGER ZONE</h2>
+              <motion.div 
+                className="absolute z-50 inline-block"
+                animate={{ x: checkoutPos.x, y: checkoutPos.y }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                {/* UX VIOLATION: User Control. The checkout button actively evades the mouse. */}
+                <div className="relative inline-block cursor-pointer">
+                  <button 
+                    onMouseEnter={handleCheckoutHover}
+                    className="bg-red-600 hover:bg-red-800 text-white font-black uppercase tracking-widest text-3xl py-6 px-12 border-8 border-black shadow-[12px_12px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] transition-colors focus:outline-none"
+                  >
+                    Proceed
+                  </button>
+                </div>
+              </motion.div>
+            </div>
           </div>
 
-          <div className="bg-neutral-50 p-10 border-4 border-neutral-300 h-[600px] overflow-y-scroll relative shadow-inner">
+          <div className="bg-neutral-50 p-10 border-4 border-neutral-300 h-[600px] overflow-y-scroll relative shadow-inner mb-24">
             <h3 className="font-black mb-6 uppercase text-neutral-800 text-2xl tracking-widest border-b-4 border-neutral-200 pb-2">Terms and Conditions of Checkout</h3>
             
             <p className="text-justify text-xs text-neutral-500 mb-8 font-serif leading-loose">
@@ -349,24 +369,7 @@ export default function DeepDarkCommerce() {
               {[...Array(50)].map(() => "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ")}
             </p>
             
-            <motion.div 
-              className="absolute left-1/2 my-20 z-50 inline-block"
-              animate={{ x: checkoutPos.x, y: checkoutPos.y }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              style={{ x: "-50%" }}
-            >
-              {/* UX VIOLATION: User Control. The checkout button actively evades the mouse. */}
-              <div className="relative inline-block cursor-pointer">
-                <button 
-                  onMouseEnter={handleCheckoutHover}
-                  className="bg-red-600 hover:bg-red-800 text-white font-black uppercase tracking-widest text-2xl py-6 px-12 border-4 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] hover:shadow-[0_0_0_0_rgba(0,0,0,1)] transition-colors focus:outline-none"
-                >
-                  Proceed
-                </button>
-              </div>
-            </motion.div>
-            
-            <p className="text-justify text-xs text-neutral-500 mt-64 relative font-serif leading-loose">
+            <p className="text-justify text-xs text-neutral-500 relative font-serif leading-loose">
               {[...Array(30)].map(() => "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ")}
             </p>
           </div>
