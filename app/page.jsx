@@ -359,13 +359,13 @@ export default function ZeptoBlinkit() {
           <div className="relative">
             <button 
               onClick={() => setIsAddressOpen(!isAddressOpen)}
-              className={`flex items-center gap-2 ${dark ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-100 border-neutral-200'} border rounded-full px-3 py-2 cursor-pointer hover:border-red-500 transition-colors min-w-[200px]`}
+              className={`flex items-center gap-2 ${dark ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-100 border-neutral-200'} border rounded-full px-2 py-2 md:px-3 md:py-2 cursor-pointer hover:border-red-500 transition-colors w-auto`}
             >
               <Zap size={12} className="text-green-500 shrink-0" />
-              <span className="text-green-500 font-black text-xs">10 min</span>
-              <span className="text-neutral-500 text-xs">|</span>
+              <span className="hidden md:inline text-green-500 font-black text-xs">10 min</span>
+              <span className="hidden md:inline text-neutral-500 text-xs">|</span>
               <MapPin size={12} className={`${dark ? 'text-neutral-400' : 'text-neutral-500'} shrink-0`} />
-              <span className={`text-xs font-bold ${dark ? 'text-neutral-200' : 'text-neutral-700'} truncate max-w-[110px]`}>{geoAddress}</span>
+              <span className={`text-xs font-bold ${dark ? 'text-neutral-200' : 'text-neutral-700'} truncate max-w-[110px] hidden sm:inline`}>{geoAddress}</span>
               <ChevronDown size={12} className={`${dark ? 'text-neutral-600' : 'text-neutral-400'} ml-auto shrink-0 transition-transform ${isAddressOpen ? 'rotate-180' : ''}`} />
             </button>
             
