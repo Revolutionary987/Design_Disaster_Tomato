@@ -21,15 +21,18 @@ const DeliveryTracker = dynamic(() => import('./components/DeliveryTracker'), { 
 // CATEGORIES — Lucide icons only
 // ============================================================================
 const CATEGORIES = [
-  { id: "all",       label: "All",          Icon: LayoutGrid },
-  { id: "fruits",    label: "Fruits",       Icon: Apple      },
-  { id: "veggies",   label: "Vegetables",   Icon: Leaf       },
-  { id: "dairy",     label: "Dairy & Eggs", Icon: Milk       },
-  { id: "bakery",    label: "Bakery",       Icon: Cookie     },
-  { id: "beverages", label: "Beverages",    Icon: Coffee     },
-  { id: "snacks",    label: "Snacks",       Icon: Sandwich   },
-  { id: "meat",      label: "Meat & Fish",  Icon: Fish       },
-  { id: "pantry",    label: "Pantry",       Icon: Archive    },
+  { id: "all",        label: "All",               Icon: LayoutGrid },
+  { id: "fruits",     label: "Fruits & Veggies",  Icon: Leaf       },
+  { id: "dairy",      label: "Dairy & Breakfast", Icon: Milk       },
+  { id: "munchies",   label: "Munchies",          Icon: Flame      },
+  { id: "drinks",     label: "Cold Drinks",       Icon: Coffee     },
+  { id: "instant",    label: "Instant Food",      Icon: Zap        },
+  { id: "bakery",     label: "Bakery",            Icon: Cookie     },
+  { id: "meat",       label: "Meat & Fish",       Icon: Fish       },
+  { id: "pantry",     label: "Pantry",            Icon: Archive    },
+  { id: "cleaning",   label: "Cleaning",          Icon: Tag        },
+  { id: "personal",   label: "Personal Care",     Icon: User       },
+  { id: "pet",        label: "Pet Care",          Icon: Star       },
 ];
 
 // ============================================================================
@@ -104,6 +107,37 @@ const PRODUCTS = [
   { id: 58, name: "Rolled Oats",             price: 3.80,  img:'https://images.unsplash.com/photo-1614961233913-a5113a4a34ed?w=400&h=400&fit=crop&q=80', rating:4.7, distance:0.8, isOrganic:true, category:"pantry",    unit:"500 g" },
   { id: 59, name: "Peanut Butter",           price: 6.50,  img:'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&h=400&fit=crop&q=80', rating:4.8, distance:0.6, category:"pantry",    unit:"400 g" },
   { id: 60, name: "Soy Sauce",               price: 3.99,  img:'https://images.unsplash.com/photo-1622542796254-5b9c46ab0d2f?w=400&h=400&fit=crop&q=80', rating:4.5, distance:1.0, category:"pantry",    unit:"250 ml" },
+  // MUNCHIES (Snacks/Chips)
+  { id: 61, name: "Nacho Cheese Chips",      price: 1.99,  img:'https://images.unsplash.com/photo-1599490659213-e2b9527bb087?w=400&h=400&fit=crop&q=80', rating:4.7, distance:0.5, category:"munchies",  unit:"150 g" },
+  { id: 62, name: "Classic Salted Wafers",   price: 1.50,  img:'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&h=400&fit=crop&q=80', rating:4.6, distance:0.8, category:"munchies",  unit:"100 g" },
+  { id: 63, name: "Popcorn Butter",          price: 2.10,  img:'https://images.unsplash.com/photo-1578912995058-94116260a16b?w=400&h=400&fit=crop&q=80', rating:4.8, distance:0.9, category:"munchies",  unit:"80 g" },
+  { id: 64, name: "Gummy Bears",             price: 3.49,  img:'https://images.unsplash.com/photo-1582050048266-3d70f0dfcc0c?w=400&h=400&fit=crop&q=80', rating:4.5, distance:1.2, category:"munchies",  unit:"200 g" },
+  { id: 65, name: "Spicy Peri Peri Mix",     price: 4.99,  img:'https://images.unsplash.com/photo-1600271886342-99933580a109?w=400&h=400&fit=crop&q=80', rating:4.9, distance:0.6, category:"munchies",  unit:"150 g", isFlashDeal:true, originalPrice:6.99 },
+  // DRINKS (Cold Drinks)
+  { id: 66, name: "Coke Classic Can",        price: 1.20,  img:'https://images.unsplash.com/photo-1629203851022-3cd263ebf897?w=400&h=400&fit=crop&q=80', rating:4.7, distance:0.3, category:"drinks",    unit:"330 ml" },
+  { id: 67, name: "Lemon Soda",              price: 1.10,  img:'https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=400&h=400&fit=crop&q=80', rating:4.5, distance:0.5, category:"drinks",    unit:"330 ml" },
+  { id: 68, name: "Energy Drink",            price: 2.50,  img:'https://images.unsplash.com/photo-1622544111325-10141680d906?w=400&h=400&fit=crop&q=80', rating:4.4, distance:1.0, category:"drinks",    unit:"250 ml" },
+  { id: 69, name: "Iced Peach Tea",          price: 2.99,  img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop&q=80', rating:4.8, distance:0.9, category:"drinks",    unit:"500 ml" },
+  // INSTANT FOOD
+  { id: 70, name: "Masala Instant Noodles",  price: 0.99,  img:'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400&h=400&fit=crop&q=80', rating:4.8, distance:0.4, category:"instant",   unit:"70 g" },
+  { id: 71, name: "Frozen Pepperoni Pizza",  price: 8.50,  img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=400&fit=crop&q=80', rating:4.7, distance:1.5, category:"instant",   unit:"400 g" },
+  { id: 72, name: "Ready-to-Eat Pasta",      price: 4.99,  img:'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400&h=400&fit=crop&q=80', rating:4.5, distance:1.3, category:"instant",   unit:"300 g" },
+  { id: 73, name: "Instant Veg Soup",        price: 1.25,  img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=400&fit=crop&q=80', rating:4.6, distance:0.7, category:"instant",   unit:"pack of 2" },
+  // CLEANING
+  { id: 74, name: "Dishwash Gel Lemon",      price: 4.50,  img:'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&h=400&fit=crop&q=80', rating:4.8, distance:0.9, category:"cleaning",  unit:"500 ml" },
+  { id: 75, name: "Floor Cleaner",           price: 3.99,  img:'https://images.unsplash.com/photo-1584622781564-1d9876a13d00?w=400&h=400&fit=crop&q=80', rating:4.7, distance:1.0, category:"cleaning",  unit:"1 L" },
+  { id: 76, name: "Fabric Detergent",        price: 9.99,  img:'https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=400&h=400&fit=crop&q=80', rating:4.9, distance:1.4, category:"cleaning",  unit:"2 kg" },
+  { id: 77, name: "Multi-Surface Spray",     price: 3.50,  img:'https://images.unsplash.com/photo-1585421514738-ee184bb21f00?w=400&h=400&fit=crop&q=80', rating:4.6, distance:0.8, category:"cleaning",  unit:"500 ml" },
+  // PERSONAL CARE
+  { id: 78, name: "Moisturizing Soap",       price: 2.99,  img:'https://images.unsplash.com/photo-1605234505051-7892ea01da66?w=400&h=400&fit=crop&q=80', rating:4.7, distance:0.5, category:"personal",  unit:"3 pcs" },
+  { id: 79, name: "Anti-Dandruff Shampoo",   price: 7.50,  img:'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&h=400&fit=crop&q=80', rating:4.8, distance:1.2, category:"personal",  unit:"400 ml" },
+  { id: 80, name: "Bamboo Toothbrush",       price: 1.50,  img:'https://images.unsplash.com/photo-1620914170884-85514f7b6009?w=400&h=400&fit=crop&q=80', rating:4.9, distance:0.7, category:"personal",  unit:"1 pc" },
+  { id: 81, name: "Mint Mouthwash",          price: 4.80,  img:'https://images.unsplash.com/photo-1559591937-e68fb3335fd5?w=400&h=400&fit=crop&q=80', rating:4.6, distance:1.1, category:"personal",  unit:"500 ml" },
+  // PET CARE
+  { id: 82, name: "Dry Cat Food",            price: 14.99, img:'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=400&fit=crop&q=80', rating:4.9, distance:2.1, category:"pet",       unit:"1.5 kg" },
+  { id: 83, name: "Dog Chew Treats",         price: 5.50,  img:'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=400&fit=crop&q=80', rating:4.7, distance:1.8, category:"pet",       unit:"100 g" },
+  { id: 84, name: "Pet Shampoo Aloe",        price: 8.99,  img:'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=400&h=400&fit=crop&q=80', rating:4.8, distance:1.5, category:"pet",       unit:"500 ml" },
+  { id: 85, name: "Bouncy Ball Toy",         price: 2.20,  img:'https://images.unsplash.com/photo-1583511655826-05700d52f4d9?w=400&h=400&fit=crop&q=80', rating:4.6, distance:0.9, category:"pet",       unit:"1 pc" },
 ];
 
 const ALL_WORDS = Array.from(new Set(
