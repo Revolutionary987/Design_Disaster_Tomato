@@ -50,23 +50,25 @@ export default function DeliveryTracker({ total, userLat, userLng, address, onCl
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-black flex flex-col">
+      className={`fixed inset-0 z-[200] ${dark ? 'bg-black' : 'bg-neutral-50'} flex flex-col`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-neutral-800">
-        <div>
-          <h2 className="text-xl font-black uppercase tracking-tighter text-white">Live Delivery Tracking</h2>
-          <p className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1"><span>📍</span> {address}</p>
+      <div className={`flex items-center justify-between p-4 border-b ${dark ? 'border-neutral-800 bg-black/50' : 'border-neutral-200 bg-white/50'} backdrop-blur-md`}>
+        <div className="flex items-center gap-4">
+          <button onClick={onClose} className="w-10 h-10 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center hover:bg-red-600 transition-all text-white group" aria-label="Go back">
+            <X size={20} className="group-hover:rotate-90 transition-transform" />
+          </button>
+          <div>
+            <h2 className={`text-xl font-black uppercase tracking-tighter ${dark ? 'text-white' : 'text-neutral-900'}`}>Live Tracking</h2>
+            <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest flex items-center gap-1">
+              Order ID: <span className={dark ? 'text-white' : 'text-neutral-900'}>#ZPT-{Math.floor(Math.random() * 90000 + 10000)}</span>
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-center">
-            <div className="text-3xl font-black text-red-500 tabular-nums">{pad(mins)}:{pad(secs)}</div>
-            <p className="text-[10px] text-neutral-500 uppercase tracking-widest">Remaining</p>
+          <div className="text-right">
+            <div className="text-2xl font-black text-red-500 tabular-nums leading-none">{pad(mins)}:{pad(secs)}</div>
+            <p className="text-[8px] text-neutral-500 uppercase font-black tracking-[0.2em] mt-1">Estim. Arrival</p>
           </div>
-          {secondsLeft === 0 && (
-            <button onClick={onClose} className="p-2 rounded-full bg-neutral-800 hover:bg-neutral-700 text-white transition-colors" aria-label="Close tracker">
-              <X size={20} />
-            </button>
-          )}
         </div>
       </div>
 
@@ -113,14 +115,37 @@ export default function DeliveryTracker({ total, userLat, userLng, address, onCl
             🏍 Rider · {(deliveryProgress * 1.2).toFixed(1)} km traveled
           </div>
           {secondsLeft === 0 && (
-            <div className="absolute inset-0 bg-green-600/20 backdrop-blur-sm flex items-center justify-center">
-              <div className="bg-black border-4 border-green-500 p-8 rounded-2xl text-center">
-                <p className="text-5xl mb-3">🎉</p>
-                <h3 className="text-2xl font-black text-white uppercase">Order Arrived!</h3>
-                <p className="text-neutral-400 mt-1">Your order has been delivered</p>
-                <button onClick={onClose} className="mt-4 bg-red-600 hover:bg-red-700 text-white font-black uppercase px-8 py-3 rounded-xl transition-colors">Done</button>
-              </div>
-            </div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-green-600/20 backdrop-blur-md flex items-center justify-center z-50">
+              <motion.div 
+                initial={{ scale: 0.5, y: 50 }} 
+                animate={{ scale: 1, y: 0 }} 
+                transition={{ type: "spring", damping: 15 }}
+                className="bg-black border-4 border-green-500 p-10 rounded-[40px] text-center shadow-[0_0_100px_rgba(34,197,94,0.4)] relative overflow-hidden"
+              >
+                {/* Decorative floating elements */}
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ 
+                      y: [-20, -100], 
+                      x: [0, (i % 2 === 0 ? 50 : -50)], 
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                    className="absolute text-2xl"
+                    style={{ left: `${15 + i * 15}%`, bottom: '20px' }}
+                  >
+                    {['🎉', '✨', '📦', '🎈'][i % 4]}
+                  </motion.div>
+                ))}
+                
+                <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="text-7xl mb-6">🛵</motion.div>
+                <h3 className={`text-3xl font-black ${dark ? 'text-white' : 'text-neutral-900'} uppercase tracking-tighter mb-2`}>Order Delivered!</h3>
+                <p className={`${dark ? 'text-neutral-400' : 'text-neutral-600'} font-bold mb-8`}>Enjoy your fresh items in lightning speed.</p>
+                <button onClick={onClose} className="w-full bg-green-600 hover:bg-green-500 text-white font-black uppercase tracking-widest py-4 rounded-2xl transition-all shadow-[0_10px_30px_rgba(34,197,94,0.3)] active:scale-95">Great, Thanks!</button>
+              </motion.div>
+            </motion.div>
           )}
         </div>
       </div>

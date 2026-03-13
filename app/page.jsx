@@ -8,7 +8,8 @@ import {
   LayoutGrid, Apple, Leaf, Milk, Cookie, Coffee,
   Fish, Archive, Sandwich, Search, MapPin, Zap,
   ShoppingCart, ChevronDown, Sun, Moon, LogIn, LogOut,
-  Tag, Clock, Star, X, ChevronRight, Flame, User
+  Tag, Clock, Star, X, ChevronRight, Flame, User,
+  CreditCard, Package, Home
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTheme } from './contexts/ThemeContext';
@@ -16,6 +17,24 @@ import { useAuth } from './contexts/AuthContext';
 
 const AIAgent = dynamic(() => import('./components/AIAgent'), { ssr: false });
 const DeliveryTracker = dynamic(() => import('./components/DeliveryTracker'), { ssr: false });
+
+// Animation Variants
+const STAGGER_CONTAINER = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const FADE_UP = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { type: "spring", stiffness: 100, damping: 12 } 
+  }
+};
 
 // ============================================================================
 // CATEGORIES — Lucide icons only
@@ -33,6 +52,15 @@ const CATEGORIES = [
   { id: "cleaning",   label: "Cleaning",          Icon: Tag        },
   { id: "personal",   label: "Personal Care",     Icon: User       },
   { id: "pet",        label: "Pet Care",          Icon: Star       },
+];
+
+const BRANDS = [
+  { id: 1, name: "Organic Valley", img: "https://images.unsplash.com/photo-1528498033373-3c6c08e93d79?w=200&q=80" },
+  { id: 2, name: "Dairy Best",     img: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&q=80" },
+  { id: 3, name: "Snack Rite",    img: "https://images.unsplash.com/photo-1599490659223-eb33e95088c1?w=200&q=80" },
+  { id: 4, name: "Brew Master",    img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80" },
+  { id: 5, name: "Fresh Farms",    img: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=80" },
+  { id: 6, name: "Nature's Own",   img: "https://images.unsplash.com/photo-1518843875459-f738682238a6?w=200&q=80" },
 ];
 
 // ============================================================================
@@ -164,11 +192,11 @@ const ALL_WORDS = Array.from(new Set(
   PRODUCTS.flatMap(p => p.name.toLowerCase().split(/\s+/)).filter(w => w.length > 2)
 ));
 
-const HERO_SLIDES = [
-  { id: 1, title: "FLAT 20% OFF",   subtitle: "On your first order — use code DARK20",         bg: "from-red-700 via-red-900 to-black",    label: "DARK20" },
-  { id: 2, title: "FLASH SALE",     subtitle: "6 PM – 8 PM | Up to 40% off on select items",  bg: "from-yellow-600 via-red-800 to-black",  label: "HOT" },
-  { id: 3, title: "FREE DELIVERY",  subtitle: "On orders above $25 — limited time",           bg: "from-blue-800 via-neutral-900 to-black", label: "FREE" },
-  { id: 4, title: "ORGANIC WEEK",   subtitle: "Freshest organic produce in 10 minutes",       bg: "from-green-700 via-neutral-900 to-black", label: "BIO" },
+const HERO_BANNERS = [
+  { id: 1, title: "FLAT 20% OFF",   subtitle: "On your first order — use code DARK20",         bg: "from-red-700 via-red-900 to-black",    label: "DARK20", img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80' },
+  { id: 2, title: "FLASH SALE",     subtitle: "6 PM – 8 PM | Up to 40% off on select items",  bg: "from-yellow-600 via-red-800 to-black",  label: "HOT", img: 'https://images.unsplash.com/photo-1506617564039-2f3b650ad755?w=800&q=80' },
+  { id: 3, title: "FREE DELIVERY",  subtitle: "On orders above $25 — limited time",           bg: "from-blue-800 via-neutral-900 to-black", label: "FREE", img: 'https://images.unsplash.com/photo-1543168256-418811576931?w=800&q=80' },
+  { id: 4, title: "ORGANIC WEEK",   subtitle: "Freshest organic produce in 10 minutes",       bg: "from-green-700 via-neutral-900 to-black", label: "BIO", img: 'https://images.unsplash.com/photo-1406213753308-4122d2f78683?w=800&q=80' },
 ];
 
 const SEARCH_HISTORY_KEY = "dc_search_history";
@@ -195,14 +223,28 @@ export default function ZeptoBlinkit() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchHistory, setSearchHistory] = useState([]);
   const [wordPrediction, setWordPrediction] = useState("");
-  const [geoAddress, setGeoAddress] = useState("Fetching location...");
+  const [geoAddress, setGeoAddress] = useState("Home · Sector 5, HSR Layout");
+  const [addressType, setAddressType] = useState("home"); // home, office, other
+  const [isAddressOpen, setIsAddressOpen] = useState(false);
   const [geoCoords, setGeoCoords] = useState({ lat: 12.9141, lng: 77.6446 });
   const catScrollRef = useRef(null);
 
+  const ADDRESSES = {
+    home: "Home · Sector 5, HSR Layout, Bangalore",
+    office: "Office · Prestige Tech Park, Marathahalli",
+    other: "Other · Indiranagar 12th Main"
+  };
+
+  const handleAddressChange = (type) => {
+    setAddressType(type);
+    setGeoAddress(ADDRESSES[type]);
+    setIsAddressOpen(false);
+  };
+
   // --- Dark mode colors ---
-  const bg       = dark ? "bg-black"                              : "bg-neutral-100";
+  const bg       = dark ? "bg-black"                              : "bg-neutral-50";
   const text     = dark ? "text-white"                            : "text-neutral-900";
-  const muted    = dark ? "text-neutral-500"                      : "text-neutral-400";
+  const muted    = dark ? "text-neutral-500"                      : "text-neutral-600";
   const cardBg   = dark ? "bg-neutral-900 border-neutral-700"     : "bg-white border-neutral-200";
   const cardText = dark ? "text-white"                            : "text-neutral-900";
 
@@ -235,7 +277,7 @@ export default function ZeptoBlinkit() {
   }, []);
 
   // ---- Hero auto-slide ----
-  useEffect(() => { const t = setInterval(() => setCurrentSlide(p => (p + 1) % HERO_SLIDES.length), 4000); return () => clearInterval(t); }, []);
+  useEffect(() => { const t = setInterval(() => setCurrentSlide(p => (p + 1) % HERO_BANNERS.length), 4000); return () => clearInterval(t); }, []);
 
   // ---- Flash countdown ----
   useEffect(() => {
@@ -276,6 +318,7 @@ export default function ZeptoBlinkit() {
   }, []);
 
   const subtotal = useMemo(() => cart.reduce((a, c) => a + c.price * c.quantity, 0), [cart]);
+  const totalSavings = useMemo(() => cart.reduce((a, c) => a + (c.originalPrice ? (c.originalPrice - c.price) * c.quantity : 0), 0), [cart]);
   const discount = couponApplied ? subtotal * 0.1 : 0;
   const deliveryFee = subtotal > 25 ? 0 : 2.99;
   const taxes = (subtotal - discount) * 0.08;
@@ -303,23 +346,62 @@ export default function ZeptoBlinkit() {
     <div className={`min-h-screen ${bg} ${text} font-sans selection:bg-red-600 selection:text-white transition-colors`}>
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-black text-white shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b-4 border-red-600">
+      <header className={`sticky top-0 z-50 ${dark ? 'bg-black text-white' : 'bg-white text-neutral-900'} shadow-[0_4px_30px_rgba(0,0,0,0.1)] border-b-4 border-red-600`}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/" className="shrink-0 flex items-center gap-2 mr-1 hover:opacity-80 transition-opacity">
-            <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center font-black text-lg">D</div>
+            <div className="w-9 h-9 bg-red-600 rounded-lg flex items-center justify-center font-black text-white text-lg">D</div>
             <div className="hidden sm:block leading-none">
-              <p className="text-sm font-black uppercase tracking-tighter">Dark</p>
+              <p className={`text-sm font-black uppercase tracking-tighter ${dark ? 'text-white' : 'text-neutral-900'}`}>Dark</p>
               <p className="text-sm font-black uppercase tracking-tighter text-red-500">Commerce</p>
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center gap-2 bg-neutral-900 border border-neutral-700 rounded-full px-3 py-2 cursor-pointer hover:border-red-500 transition-colors min-w-[200px]">
-            <Zap size={12} className="text-green-400 shrink-0" />
-            <span className="text-green-400 font-black text-xs">10 min</span>
-            <span className="text-neutral-500 text-xs">|</span>
-            <MapPin size={12} className="text-neutral-400 shrink-0" />
-            <span className="text-xs font-bold text-neutral-200 truncate max-w-[110px]">{geoAddress}</span>
-            <ChevronDown size={12} className="text-neutral-600 ml-auto shrink-0" />
+          <div className="relative">
+            <button 
+              onClick={() => setIsAddressOpen(!isAddressOpen)}
+              className={`hidden md:flex items-center gap-2 ${dark ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-100 border-neutral-200'} border rounded-full px-3 py-2 cursor-pointer hover:border-red-500 transition-colors min-w-[200px]`}
+            >
+              <Zap size={12} className="text-green-500 shrink-0" />
+              <span className="text-green-500 font-black text-xs">10 min</span>
+              <span className="text-neutral-500 text-xs">|</span>
+              <MapPin size={12} className={`${dark ? 'text-neutral-400' : 'text-neutral-500'} shrink-0`} />
+              <span className={`text-xs font-bold ${dark ? 'text-neutral-200' : 'text-neutral-700'} truncate max-w-[110px]`}>{geoAddress}</span>
+              <ChevronDown size={12} className={`${dark ? 'text-neutral-600' : 'text-neutral-400'} ml-auto shrink-0 transition-transform ${isAddressOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            <AnimatePresence>
+              {isAddressOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-full left-0 mt-2 w-[280px] bg-neutral-900 border border-neutral-700 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] p-2 overflow-hidden backdrop-blur-xl bg-black/80"
+                >
+                  <p className="text-[10px] items-center font-black uppercase tracking-widest text-neutral-500 px-3 py-2 flex justify-between">
+                    Select Address <MapPin size={10} />
+                  </p>
+                  {(Object.keys(ADDRESSES)).map((type) => (
+                    <button 
+                      key={type}
+                      onClick={() => handleAddressChange(type)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${addressType === type ? 'bg-red-600 text-white' : 'hover:bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${addressType === type ? 'bg-white/20' : 'bg-neutral-800'}`}>
+                        {type === 'home' ? <Home size={14} /> : type === 'office' ? <Archive size={14} /> : <MapPin size={14} />}
+                      </div>
+                      <div className="text-left overflow-hidden">
+                        <p className="text-xs font-black uppercase tracking-wider">{type}</p>
+                        <p className={`text-[10px] truncate ${addressType === type ? 'text-white/70' : 'text-neutral-500'}`}>{ADDRESSES[type].split('·')[1]}</p>
+                      </div>
+                      {addressType === type && <CheckCircle size={14} className="ml-auto" />}
+                    </button>
+                  ))}
+                  <button className="w-full mt-2 p-2.5 text-[10px] font-black uppercase text-red-500 border border-dashed border-red-500/30 rounded-xl hover:bg-red-500/5 transition-all">
+                    + Add New Address
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex-1 relative">
@@ -419,12 +501,12 @@ export default function ZeptoBlinkit() {
       <section className="relative overflow-hidden" aria-label="Promotions">
         <AnimatePresence mode="wait">
           <motion.div key={currentSlide} initial={{ opacity: 0, x: 60 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -60 }} transition={{ duration: 0.4 }}
-            className={`bg-gradient-to-r ${HERO_SLIDES[currentSlide].bg} px-8 py-12 md:py-16`}>
+            className={`bg-gradient-to-r ${HERO_BANNERS[currentSlide].bg} px-8 py-12 md:py-16`}>
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div>
-                <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3"><Tag size={12} className="text-yellow-400" /><span className="text-xs font-bold text-white uppercase tracking-widest">{HERO_SLIDES[currentSlide].label}</span></div>
-                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white mb-2">{HERO_SLIDES[currentSlide].title}</h2>
-                <p className="text-white/70 text-base md:text-lg font-medium">{HERO_SLIDES[currentSlide].subtitle}</p>
+                <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3"><Tag size={12} className="text-yellow-400" /><span className="text-xs font-bold text-white uppercase tracking-widest">{HERO_BANNERS[currentSlide].label}</span></div>
+                <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-white mb-2">{HERO_BANNERS[currentSlide].title}</h2>
+                <p className="text-white/70 text-base md:text-lg font-medium">{HERO_BANNERS[currentSlide].subtitle}</p>
               </div>
               <div className="hidden md:flex items-center bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-6 py-4 gap-3">
                 <Clock size={28} className="text-green-400" /><div><p className="text-2xl font-black text-white">10 min</p><p className="text-xs text-white/60">Delivery</p></div>
@@ -433,10 +515,10 @@ export default function ZeptoBlinkit() {
           </motion.div>
         </AnimatePresence>
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-          {HERO_SLIDES.map((_, i) => <button key={i} onClick={() => setCurrentSlide(i)} className={`rounded-full transition-all ${i === currentSlide ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/30"}`} aria-label={`Slide ${i + 1}`} />)}
+          {HERO_BANNERS.map((_, i) => <button key={i} onClick={() => setCurrentSlide(i)} className={`rounded-full transition-all ${i === currentSlide ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/30"}`} aria-label={`Slide ${i + 1}`} />)}
         </div>
-        <button onClick={() => setCurrentSlide(p => (p - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center text-xl">‹</button>
-        <button onClick={() => setCurrentSlide(p => (p + 1) % HERO_SLIDES.length)} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center text-xl">›</button>
+        <button onClick={() => setCurrentSlide(p => (p - 1 + HERO_BANNERS.length) % HERO_BANNERS.length)} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center text-xl">‹</button>
+        <button onClick={() => setCurrentSlide(p => (p + 1) % HERO_BANNERS.length)} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center text-xl">›</button>
       </section>
 
       {/* FLASH DEALS */}
@@ -445,8 +527,27 @@ export default function ZeptoBlinkit() {
           <h2 className={`text-2xl font-black uppercase tracking-tighter flex items-center gap-2 ${text}`}><Flame size={20} className="text-red-500" /> Flash Deals</h2>
           <span className="bg-red-600 text-white text-xs font-black px-3 py-1 rounded-full animate-pulse tabular-nums">{pad(countdown.h)}:{pad(countdown.m)}:{pad(countdown.s)}</span>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-3" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-4 overflow-x-auto pb-3 hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
           {flashDeals.map(p => <div key={p.id} className="min-w-[200px] max-w-[200px] flex-shrink-0"><ProductCard product={p} qty={getProductQty(p.id)} onAdd={addToCart} onDecrement={decrementCart} cardBg={cardBg} cardText={cardText} dark={dark} /></div>)}
+        </div>
+      </section>
+
+      {/* FEATURED BRANDS */}
+      <section className="max-w-7xl mx-auto px-4 mt-12 mb-4">
+        <h2 className={`text-xl font-black uppercase tracking-tighter mb-4 ${text}`}>Featured Brands</h2>
+        <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
+          {BRANDS.map((brand) => (
+            <motion.div 
+              key={brand.id}
+              whileHover={{ y: -5, scale: 1.05 }}
+              className={`min-w-[120px] aspect-square rounded-[32px] ${cardBg} border-2 border-transparent hover:border-red-600/30 flex flex-col items-center justify-center p-4 transition-all cursor-pointer shadow-xl`}
+            >
+              <div className="w-16 h-16 relative mb-2 rounded-2xl overflow-hidden bg-white p-2">
+                <Image src={brand.img} alt={brand.name} fill className="object-contain" sizes="64px" />
+              </div>
+              <p className="text-[10px] font-black uppercase text-center tracking-tighter opacity-70 leading-none">{brand.name}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -659,20 +760,29 @@ export default function ZeptoBlinkit() {
                 </button>
               </div>
 
-              <div className="px-6 py-6 bg-neutral-950/50">
+              <div className="px-6 py-4 bg-neutral-900/50 border-b border-neutral-800">
                 <div className="flex items-center justify-between mb-3 text-[10px] font-black uppercase tracking-widest">
                   <p className={subtotal >= 25 ? "text-green-500" : "text-neutral-400"}>
                     {subtotal >= 25 ? "🎉 Free Delivery Unlocked!" : `Shop $${(25 - subtotal).toFixed(2)} more for Free Delivery`}
                   </p>
                   <span className="text-red-500">${subtotal.toFixed(2)} / $25</span>
                 </div>
-                <div className="w-full h-2 bg-neutral-900 rounded-full p-[2px] border border-neutral-800">
+                <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min((subtotal / 25) * 100, 100)}%` }}
-                    className={`h-full rounded-full ${subtotal >= 25 ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]'}`}
+                    className={`h-full ${subtotal >= 25 ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]'}`}
                   />
                 </div>
+                {totalSavings > 0 && (
+                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex items-center justify-between bg-green-500/10 border border-green-500/20 px-3 py-2 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-green-500 flex items-center justify-center text-white"><Tag size={12} fill="white" /></div>
+                      <p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Total Savings</p>
+                    </div>
+                    <span className="text-xs font-black text-green-500">${totalSavings.toFixed(2)}</span>
+                  </motion.div>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar">
@@ -712,8 +822,8 @@ export default function ZeptoBlinkit() {
               {cart.length > 0 && (
                 <div className={`p-6 border-t ${dark ? 'border-neutral-800 bg-black' : 'border-neutral-100 bg-white'}`}>
                   <div className="flex items-center justify-between mb-6">
-                    <span className="font-black uppercase tracking-[0.2em] text-xs text-neutral-500">Bill Total</span>
-                    <span className="text-3xl font-black tracking-tighter">${total.toFixed(2)}</span>
+                    <span className={`font-black uppercase tracking-[0.2em] text-xs ${dark ? 'text-neutral-500' : 'text-neutral-600'}`}>Bill Total</span>
+                    <span className={`text-3xl font-black tracking-tighter ${text}`}>${total.toFixed(2)}</span>
                   </div>
                   <button onClick={() => { setIsCartOpen(false); setIsCheckingOut(true); }} 
                     className="w-full bg-red-600 hover:bg-red-700 text-white font-black uppercase py-5 rounded-[28px] text-lg tracking-widest shadow-[0_20px_40px_rgba(239,68,68,0.3)] hover:translate-y-[-2px] active:translate-y-[0px] transition-all flex items-center justify-center gap-3">
@@ -737,9 +847,62 @@ export default function ZeptoBlinkit() {
 
       <TrustSection dark={dark} />
 
-      <footer className="bg-black text-neutral-600 py-8 px-6 text-center border-t-4 border-neutral-900">
-        <div className="flex items-center justify-center gap-2 mb-1"><Star size={12} className="text-red-600 fill-red-600" /><p className="font-bold uppercase tracking-widest text-xs text-neutral-500">Dark Commerce — AI-Powered 10-min Delivery</p><Star size={12} className="text-red-600 fill-red-600" /></div>
-        <p className="text-[10px] text-neutral-700">Agentic AI · Geolocation · Real-time Delivery Tracking</p>
+      <footer className="bg-black text-neutral-400 py-16 px-6 border-t-4 border-red-600 mt-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-left">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-black text-white text-sm">D</div>
+              <h3 className="text-xl font-black uppercase tracking-tighter text-white">Dark Commerce</h3>
+            </div>
+            <p className="text-[11px] font-bold leading-relaxed text-neutral-500 uppercase tracking-widest">
+              The world's fastest AI-powered quick commerce platform. Delivering magic in 10 minutes.
+            </p>
+            <div className="flex gap-4 pt-2">
+              {[Star, Zap, Flame, User].map((Icon, i) => (
+                <div key={i} className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer border border-neutral-800">
+                  <Icon size={14} className="text-white" />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-6">Categories</h4>
+            <ul className="space-y-3 text-[10px] font-black uppercase tracking-widest">
+              {CATEGORIES.slice(1, 6).map(cat => (
+                <li key={cat.id} className="hover:text-red-500 cursor-pointer transition-colors">{cat.label}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-6">Support</h4>
+            <ul className="space-y-3 text-[10px] font-black uppercase tracking-widest">
+              <li className="hover:text-red-500 cursor-pointer transition-colors">Help Center</li>
+              <li className="hover:text-red-500 cursor-pointer transition-colors">Returns & Refunds</li>
+              <li className="hover:text-red-500 cursor-pointer transition-colors">Partner With Us</li>
+              <li className="hover:text-red-500 cursor-pointer transition-colors">Privacy Policy</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-black uppercase tracking-[0.2em] text-xs mb-6">Download Our App</h4>
+            <div className="space-y-3">
+              <div className="bg-neutral-900 border border-neutral-800 p-3 rounded-2xl flex items-center gap-3 hover:border-red-600 transition-all cursor-pointer">
+                <Apple size={24} className="text-white" />
+                <div className="leading-none"><p className="text-[8px] font-black uppercase text-neutral-500">Download on the</p><p className="text-sm font-black text-white">App Store</p></div>
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 p-3 rounded-2xl flex items-center gap-3 hover:border-red-600 transition-all cursor-pointer">
+                <Zap size={24} className="text-white" />
+                <div className="leading-none"><p className="text-[8px] font-black uppercase text-neutral-500">Get it on</p><p className="text-sm font-black text-white">Google Play</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto border-t border-neutral-900 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] text-neutral-700">
+          <p>© 2026 Dark Commerce. All Rights Reserved.</p>
+          <p>Designed with ❤️ by Agentic AI</p>
+        </div>
       </footer>
     </div>
   );
@@ -759,9 +922,14 @@ function ProductCard({ product, qty, onAdd, onDecrement, cardBg, cardText, dark 
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
           {product.isOrganic && <span className="flex items-center gap-0.5 bg-green-600 text-white px-1.5 py-0.5 text-[9px] font-black uppercase rounded shadow-lg"><Leaf size={7} />Organic</span>}
           {product.isFlashDeal && <span className="flex items-center gap-0.5 bg-red-600 text-white px-1.5 py-0.5 text-[9px] font-black uppercase rounded animate-pulse shadow-lg"><Flame size={7} />Deal</span>}
+          {product.originalPrice && (
+            <span className="bg-yellow-400 text-black px-1.5 py-0.5 text-[9px] font-black uppercase rounded shadow-lg flex items-center gap-0.5">
+              Save ${(product.originalPrice - product.price).toFixed(2)}
+            </span>
+          )}
         </div>
         <div className="absolute bottom-2 left-2 flex gap-1 flex-wrap z-10">
-          <span className="flex items-center gap-0.5 bg-yellow-400 text-black px-1.5 py-0.5 text-[9px] font-black rounded shadow-md"><Star size={7} className="fill-black" />{product.rating}</span>
+          <span className="flex items-center gap-0.5 bg-neutral-900/80 backdrop-blur text-white px-1.5 py-0.5 text-[9px] font-black rounded shadow-md border border-white/10"><Star size={7} className="fill-yellow-400 text-yellow-400" />{product.rating}</span>
           <span className="flex items-center gap-0.5 bg-blue-600 text-white px-1.5 py-0.5 text-[9px] font-black rounded shadow-md"><Zap size={7} />10 min</span>
         </div>
         {/* Hover Gradient Shield */}
@@ -822,13 +990,13 @@ function TrustSection({ dark }) {
     { icon: Package,   title: "Fresh Quality",  desc: "Handpicked daily" },
   ];
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 py-12 border-t border-neutral-800 ${dark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+    <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 py-12 border-t ${dark ? 'border-neutral-800 text-neutral-400' : 'border-neutral-200 text-neutral-600'}`}>
       {items.map((item, i) => (
         <div key={i} className="flex flex-col items-center text-center group">
-          <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-red-500 mb-3 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xl">
+          <div className={`w-12 h-12 rounded-2xl ${dark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200'} border flex items-center justify-center text-red-500 mb-3 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xl`}>
             <item.icon size={24} />
           </div>
-          <h4 className="text-xs font-black uppercase tracking-widest text-white mb-1">{item.title}</h4>
+          <h4 className={`text-xs font-black uppercase tracking-widest ${dark ? 'text-white' : 'text-neutral-900'} mb-1`}>{item.title}</h4>
           <p className="text-[10px] font-bold">{item.desc}</p>
         </div>
       ))}
