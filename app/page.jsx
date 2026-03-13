@@ -8,7 +8,7 @@ import {
   LayoutGrid, Apple, Leaf, Milk, Cookie, Coffee,
   Fish, Archive, Sandwich, Search, MapPin, Zap,
   ShoppingCart, ChevronDown, Sun, Moon, LogIn, LogOut,
-  Tag, Clock, Star, X, ChevronRight, Flame
+  Tag, Clock, Star, X, ChevronRight, Flame, User
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTheme } from './contexts/ThemeContext';
@@ -659,19 +659,18 @@ export default function ZeptoBlinkit() {
                 </button>
               </div>
 
-              {/* Free Delivery Bar (Redone for better animation) */}
               <div className="px-6 py-6 bg-neutral-950/50">
                 <div className="flex items-center justify-between mb-3 text-[10px] font-black uppercase tracking-widest">
-                  <p className={cartTotal >= 25 ? "text-green-500" : "text-neutral-400"}>
-                    {cartTotal >= 25 ? "🎉 Free Delivery Unlocked!" : `Shop $${(25 - cartTotal).toFixed(2)} more for Free Delivery`}
+                  <p className={subtotal >= 25 ? "text-green-500" : "text-neutral-400"}>
+                    {subtotal >= 25 ? "🎉 Free Delivery Unlocked!" : `Shop $${(25 - subtotal).toFixed(2)} more for Free Delivery`}
                   </p>
-                  <span className="text-red-500">${cartTotal.toFixed(2)} / $25</span>
+                  <span className="text-red-500">${subtotal.toFixed(2)} / $25</span>
                 </div>
                 <div className="w-full h-2 bg-neutral-900 rounded-full p-[2px] border border-neutral-800">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min((cartTotal / 25) * 100, 100)}%` }}
-                    className={`h-full rounded-full ${cartTotal >= 25 ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]'}`}
+                    animate={{ width: `${Math.min((subtotal / 25) * 100, 100)}%` }}
+                    className={`h-full rounded-full ${subtotal >= 25 ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.4)]'}`}
                   />
                 </div>
               </div>
