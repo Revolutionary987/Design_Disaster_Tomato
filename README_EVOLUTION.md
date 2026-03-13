@@ -1,7 +1,7 @@
 # 🚀 Project Evolution: From UX Disaster to Premium Commerce
 
 ## 📖 Overview
-This project underwent a radical transformation. What started as an exercise in **intentional user frustration** (the "Design Disaster") was evolved into **Dark Commerce**, a premium, high-performance quick-commerce interface inspired by industry giants like Blinkit and Zepto.
+This project underwent a radical transformation. What started as an exercise in **intentional user frustration** (the "Design Disaster") was evolved into **Tomato**, a premium, high-performance quick-commerce interface inspired by industry giants like Blinkit and Zepto.
 
 ---
 
