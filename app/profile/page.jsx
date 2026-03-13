@@ -30,7 +30,7 @@ export default function ProfilePage() {
       setFormData({
         name: user.name || '',
         phone: user.phone || '+91 98765 43210',
-        address: user.address || 'HSR Layout, Bangalore, Karnataka'
+        address: user.address || 'UVCE,KR Circle, Bangalore, Karnataka'
       });
     } else {
       router.push('/login');
