@@ -488,24 +488,55 @@ export default function ZeptoBlinkit() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentSlide}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.6, ease: "circOut" }}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.8, ease: "circOut" }}
                 className="absolute inset-0"
               >
                 <Image src={HERO_BANNERS[currentSlide].img} alt="Hero" fill className="object-cover" priority />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex flex-col justify-center px-12">
-                  <motion.span initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="text-red-500 font-black tracking-[0.3em] uppercase text-xs mb-4">Limited Offer</motion.span>
-                  <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-5xl font-black text-white leading-none mb-6 max-w-sm tracking-tighter">{HERO_BANNERS[currentSlide].title}</motion.h2>
-                  <motion.button initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4 }} className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-sm w-fit active:scale-95 transition-all shadow-xl">Shop Now</motion.button>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent flex flex-col justify-center px-12">
+                  <motion.span initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="text-red-500 font-black tracking-[0.3em] uppercase text-[10px] mb-4 bg-red-500/10 w-fit px-3 py-1 rounded-full border border-red-500/20">Exclusive Deal</motion.span>
+                  <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-5xl font-black text-white leading-[0.9] mb-6 max-w-sm tracking-tighter drop-shadow-2xl">{HERO_BANNERS[currentSlide].title}</motion.h2>
+                  <motion.button initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4 }} className="bg-white text-black hover:bg-red-600 hover:text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs w-fit active:scale-95 transition-all shadow-2xl">Grab Now</motion.button>
                 </div>
               </motion.div>
             </AnimatePresence>
-            {/* Dots */}
-            <div className="absolute bottom-6 left-12 flex gap-2">
+            
+            {/* Glassmorphic Nav */}
+            <div className="absolute inset-y-0 left-4 right-4 flex items-center justify-between pointer-events-none">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setCurrentSlide(prev => (prev - 1 + HERO_BANNERS.length) % HERO_BANNERS.length); }}
+                className="w-12 h-12 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white pointer-events-auto opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:text-black hover:scale-110"
+              >
+                <ChevronRight size={24} className="rotate-180" />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setCurrentSlide(prev => (prev + 1) % HERO_BANNERS.length); }}
+                className="w-12 h-12 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white pointer-events-auto opacity-0 group-hover:opacity-100 transition-all hover:bg-white hover:text-black hover:scale-110"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+
+            {/* Premium Progress Dots */}
+            <div className="absolute bottom-8 left-12 flex gap-3">
               {HERO_BANNERS.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-red-600' : 'w-2 bg-white/30'}`} />
+                <button 
+                  key={i} 
+                  onClick={() => setCurrentSlide(i)}
+                  className={`h-1.5 rounded-full transition-all duration-700 relative overflow-hidden ${i === currentSlide ? 'w-10 bg-white' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                >
+                  {i === currentSlide && (
+                    <motion.div 
+                      key={currentSlide}
+                      initial={{ left: '-100%' }}
+                      animate={{ left: '0%' }}
+                      transition={{ duration: 5, ease: "linear" }}
+                      className="absolute inset-0 bg-red-600"
+                    />
+                  )}
+                </button>
               ))}
             </div>
           </motion.div>
