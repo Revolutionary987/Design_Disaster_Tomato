@@ -187,6 +187,7 @@ export default function ZeptoBlinkit() {
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [countdown, setCountdown] = useState({ h: 1, m: 45, s: 30 });
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -219,6 +220,9 @@ export default function ZeptoBlinkit() {
 
   // ---- Sync cart to localStorage ----
   useEffect(() => { localStorage.setItem("dc_cart", JSON.stringify(cart)); }, [cart]);
+
+  // ---- Initial Loading Skeleton ----
+  useEffect(() => { const t = setTimeout(() => setIsInitialLoading(false), 1200); return () => clearTimeout(t); }, []);
 
   // ---- Geolocation ----
   useEffect(() => {
@@ -450,15 +454,26 @@ export default function ZeptoBlinkit() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <AnimatePresence mode="wait">
           {selectedCategory === "all" ? (
-            <motion.div key="shelves" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="shelves" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-12">
               {shelves.map(shelf => (
-                <section key={shelf.id} className="mb-12">
+                <section key={shelf.id}>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className={`text-2xl font-black uppercase tracking-tighter flex items-center gap-2 ${text}`}><shelf.Icon size={20} className="text-red-500" /> {shelf.label}</h2>
-                    <button onClick={() => setSelectedCategory(shelf.id)} className="text-red-600 font-bold text-sm hover:underline uppercase flex items-center gap-1">See All <ChevronRight size={14} /></button>
+                    <h2 className={`text-xl font-black uppercase tracking-tighter flex items-center gap-2 ${text}`}>
+                      <shelf.Icon size={18} className="text-red-500" /> {shelf.label}
+                    </h2>
+                    <button onClick={() => setSelectedCategory(shelf.id)} className="text-red-600 font-bold text-xs hover:underline uppercase flex items-center gap-1">
+                      See All <ChevronRight size={14} />
+                    </button>
                   </div>
-                  <div className="flex gap-4 overflow-x-auto pb-3" style={{ scrollbarWidth: 'none' }}>
-                    {shelf.products.map(p => <div key={p.id} className="min-w-[200px] max-w-[200px] flex-shrink-0"><ProductCard product={p} qty={getProductQty(p.id)} onAdd={addToCart} onDecrement={decrementCart} cardBg={cardBg} cardText={cardText} dark={dark} /></div>)}
+                  <div className="flex gap-4 overflow-x-auto pb-6 scroll-smooth hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
+                    {isInitialLoading 
+                      ? Array.from({ length: 6 }).map((_, i) => <div key={i} className="min-w-[180px] flex-shrink-0"><SkeletonCard cardBg={cardBg} /></div>)
+                      : shelf.products.map(p => (
+                        <div key={p.id} className="min-w-[180px] max-w-[180px] flex-shrink-0">
+                          <ProductCard product={p} qty={getProductQty(p.id)} onAdd={addToCart} onDecrement={decrementCart} cardBg={cardBg} cardText={cardText} dark={dark} />
+                        </div>
+                      ))
+                    }
                   </div>
                 </section>
               ))}
@@ -470,7 +485,10 @@ export default function ZeptoBlinkit() {
                 <button onClick={() => setSelectedCategory("all")} className={`${muted} font-bold text-sm hover:text-red-600 uppercase flex items-center gap-1`}><ChevronRight size={14} className="rotate-180" /> All</button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {filteredProducts.map((p, i) => <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}><ProductCard product={p} qty={getProductQty(p.id)} onAdd={addToCart} onDecrement={decrementCart} cardBg={cardBg} cardText={cardText} dark={dark} /></motion.div>)}
+                {isInitialLoading 
+                  ? Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} cardBg={cardBg} />)
+                  : filteredProducts.map((p, i) => <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}><ProductCard product={p} qty={getProductQty(p.id)} onAdd={addToCart} onDecrement={decrementCart} cardBg={cardBg} cardText={cardText} dark={dark} /></motion.div>)
+                }
               </div>
             </motion.div>
           )}
@@ -557,7 +575,9 @@ export default function ZeptoBlinkit() {
         )}
       </AnimatePresence>
 
-      <footer className="bg-black text-neutral-600 py-8 px-6 text-center border-t-4 border-neutral-900 mt-12">
+      <TrustSection dark={dark} />
+
+      <footer className="bg-black text-neutral-600 py-8 px-6 text-center border-t-4 border-neutral-900">
         <div className="flex items-center justify-center gap-2 mb-1"><Star size={12} className="text-red-600 fill-red-600" /><p className="font-bold uppercase tracking-widest text-xs text-neutral-500">Dark Commerce — AI-Powered 10-min Delivery</p><Star size={12} className="text-red-600 fill-red-600" /></div>
         <p className="text-[10px] text-neutral-700">Agentic AI · Geolocation · Real-time Delivery Tracking</p>
       </footer>
@@ -601,6 +621,45 @@ function ProductCard({ product, qty, onAdd, onDecrement, cardBg, cardText, dark 
           </motion.div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// PREMIUM UI COMPONENTS: SKELETONS & TRUST
+// ============================================================================
+function SkeletonCard({ cardBg }) {
+  return (
+    <div className={`${cardBg} border-2 rounded-xl p-3 flex flex-col h-full animate-pulse`}>
+      <div className="w-full aspect-square bg-neutral-800 rounded-lg mb-3" />
+      <div className="h-4 bg-neutral-800 rounded w-3/4 mb-2" />
+      <div className="h-3 bg-neutral-800 rounded w-1/2 mb-4" />
+      <div className="mt-auto flex justify-between items-center">
+        <div className="h-6 bg-neutral-800 rounded w-1/3" />
+        <div className="h-8 bg-neutral-800 rounded w-1/2" />
+      </div>
+    </div>
+  );
+}
+
+function TrustSection({ dark }) {
+  const items = [
+    { icon: Zap,      title: "10 Min Delivery", desc: "Superfast service" },
+    { icon: Star,     title: "Best Prices",   desc: "Cheaper than local" },
+    { icon: CreditCard, title: "Safe Payments",  desc: "100% Secure" },
+    { icon: Package,   title: "Fresh Quality",  desc: "Handpicked daily" },
+  ];
+  return (
+    <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 py-12 border-t border-neutral-800 ${dark ? 'text-neutral-400' : 'text-neutral-600'}`}>
+      {items.map((item, i) => (
+        <div key={i} className="flex flex-col items-center text-center group">
+          <div className="w-12 h-12 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-red-500 mb-3 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all shadow-xl">
+            <item.icon size={24} />
+          </div>
+          <h4 className="text-xs font-black uppercase tracking-widest text-white mb-1">{item.title}</h4>
+          <p className="text-[10px] font-bold">{item.desc}</p>
+        </div>
+      ))}
     </div>
   );
 }

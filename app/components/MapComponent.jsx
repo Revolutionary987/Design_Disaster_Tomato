@@ -1,94 +1,92 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { MapPin, Target } from 'lucide-react';
 
-function getRiderPos(userLat, userLng, progress) {
-  const startLat = userLat + 0.009;
-  const startLng = userLng - 0.006;
-  return {
-    lat: startLat + (userLat - startLat) * progress,
-    lng: startLng + (userLng - startLng) * progress,
-  };
+// FIX: Leaflet marker icon issue in Next.js
+const customIcon = L.icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+// Component to handle map center updates
+function ChangeView({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) map.setView(center, 15);
+  }, [center, map]);
+  return null;
 }
 
-export default function MapComponent({ userLat, userLng, deliveryProgress }) {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const riderMarkerRef = useRef(null);
+export default function MapComponent({ address }) {
+  const [coords, setCoords] = useState([12.9141, 77.6412]); // Default: HSR Layout
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !mapRef.current || mapInstanceRef.current) return;
+  // NOTE: To use REAL Google Maps integration, you would typically use 
+  // '@react-google-maps/api' and a Valid API Key. This component uses
+  // a premium Dark Leaflet layer which matches the app's aesthetic perfectly
+  // and works instantly without external billing setup.
 
-    import("leaflet").then((L) => {
-      delete L.Icon.Default.prototype._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl:       "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl:     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      });
-
-      const map = L.map(mapRef.current, {
-        center: [userLat, userLng],
-        zoom: 15,
-        zoomControl: false,
-        attributionControl: false,
-      });
-
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        { subdomains: "abcd", maxZoom: 20 }
-      ).addTo(map);
-
-      const userIcon = L.divIcon({
-        html: `<div style="width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid #fff;box-shadow:0 0 0 6px rgba(59,130,246,0.3)"></div>`,
-        className: "",
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-      });
-      L.marker([userLat, userLng], { icon: userIcon })
-        .addTo(map)
-        .bindPopup("<b>Your Location</b>")
-        .openPopup();
-
-      const riderIcon = L.divIcon({
-        html: `<div style="width:36px;height:36px;border-radius:50%;background:#ef4444;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(239,68,68,0.5);">🏍</div>`,
-        className: "",
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-      });
-
-      const riderPos = getRiderPos(userLat, userLng, deliveryProgress);
-      const riderMarker = L.marker([riderPos.lat, riderPos.lng], { icon: riderIcon }).addTo(map);
-      riderMarker.bindTooltip("Delivery Rider", { permanent: false });
-
-      const startPos = getRiderPos(userLat, userLng, 0);
-      L.polyline(
-        [[startPos.lat, startPos.lng], [userLat, userLng]],
-        { color: "#ef4444", weight: 3, dashArray: "8 6", opacity: 0.7 }
-      ).addTo(map);
-
-      mapInstanceRef.current = map;
-      riderMarkerRef.current = riderMarker;
-    });
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+  const locateMe = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords([pos.coords.latitude, pos.coords.longitude]);
+        setLoading(false);
+      },
+      (err) => {
+        console.error(err);
+        setLoading(false);
+        alert("Unable to fetch location. please check permissions.");
       }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!riderMarkerRef.current) return;
-    const pos = getRiderPos(userLat, userLng, deliveryProgress);
-    riderMarkerRef.current.setLatLng([pos.lat, pos.lng]);
-  }, [deliveryProgress, userLat, userLng]);
+    );
+  };
 
   return (
-    <>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <div ref={mapRef} className="w-full h-full rounded-xl overflow-hidden" />
-    </>
+    <div className="w-full h-full relative rounded-3xl overflow-hidden border-2 border-neutral-800 shadow-2xl">
+      <MapContainer center={coords} zoom={15} className="w-full h-full z-0" zoomControl={false}>
+        {/* Real Dynamic Dark Tiles (CartoDB) */}
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        />
+        <ChangeView center={coords} />
+        <Marker position={coords} icon={customIcon}>
+          <Popup className="dark-popup">
+            <div className="font-bold text-xs p-1">Your Delivery Location</div>
+          </Popup>
+        </Marker>
+      </MapContainer>
+
+      {/* Floating Info */}
+      <div className="absolute top-4 left-4 right-4 z-10 space-y-2">
+        <div className="bg-black/80 backdrop-blur-md border border-neutral-800 p-3 rounded-2xl flex items-center gap-3 shadow-2xl">
+          <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white shrink-0">
+            <MapPin size={16} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500 leading-none mb-1">Delivering To</p>
+            <p className="text-xs font-bold text-white truncate">{address || "Fetching location..."}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Locate Button */}
+      <button 
+        onClick={locateMe}
+        className="absolute bottom-4 right-4 z-10 w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl hover:bg-neutral-200 transition-all active:scale-90"
+      >
+        <Target size={24} className={loading ? "animate-spin text-red-600" : ""} />
+      </button>
+    </div>
   );
 }

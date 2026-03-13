@@ -17,14 +17,31 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (email, password) => {
-    const found = MOCK_USERS.find(u => u.email === email && u.password === password);
-    if (found) {
-      const { password: _, ...safeUser } = found;
-      setUser(safeUser);
-      localStorage.setItem("dc_user", JSON.stringify(safeUser));
+    if (email === "tharun@dark.com" && password === "dark123") {
+      const newUser = {
+        name: "Tharun R Gowda",
+        email: "tharun@dark.com",
+        phone: "+91 98765 43210",
+        address: "HSR Layout, Bangalore, Karnataka",
+        avatar: "T",
+        joinedDate: "March 2026"
+      };
+      // Check if user has saved profile data
+      const saved = localStorage.getItem("dc_user_profile");
+      const userToSet = saved ? JSON.parse(saved) : newUser;
+
+      setUser(userToSet);
+      localStorage.setItem("dc_user", JSON.stringify(userToSet));
       return true;
     }
     return false;
+  };
+
+  const updateProfile = (updatedData) => {
+    const newUser = { ...user, ...updatedData };
+    setUser(newUser);
+    localStorage.setItem("dc_user", JSON.stringify(newUser));
+    localStorage.setItem("dc_user_profile", JSON.stringify(newUser));
   };
 
   const logout = () => {
@@ -32,7 +49,11 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("dc_user");
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout, updateProfile }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export const useAuth = () => useContext(AuthContext);
