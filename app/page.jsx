@@ -359,7 +359,7 @@ export default function ZeptoBlinkit() {
           <div className="relative">
             <button 
               onClick={() => setIsAddressOpen(!isAddressOpen)}
-              className={`hidden md:flex items-center gap-2 ${dark ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-100 border-neutral-200'} border rounded-full px-3 py-2 cursor-pointer hover:border-red-500 transition-colors min-w-[200px]`}
+              className={`flex items-center gap-2 ${dark ? 'bg-neutral-900 border-neutral-700' : 'bg-neutral-100 border-neutral-200'} border rounded-full px-3 py-2 cursor-pointer hover:border-red-500 transition-colors min-w-[200px]`}
             >
               <Zap size={12} className="text-green-500 shrink-0" />
               <span className="text-green-500 font-black text-xs">10 min</span>

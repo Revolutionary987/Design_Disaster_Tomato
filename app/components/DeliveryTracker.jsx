@@ -48,6 +48,11 @@ export default function DeliveryTracker({ total, userLat, userLng, address, onCl
   const secs = secondsLeft % 60;
   const pad = (n) => String(n).padStart(2, "0");
 
+  const [orderId, setOrderId] = useState(null);
+  useEffect(() => {
+    setOrderId(`#ZPT-${Math.floor(Math.random() * 90000 + 10000)}`);
+  }, []);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className={`fixed inset-0 z-[200] ${dark ? 'bg-black' : 'bg-neutral-50'} flex flex-col`}>
@@ -60,7 +65,7 @@ export default function DeliveryTracker({ total, userLat, userLng, address, onCl
           <div>
             <h2 className={`text-xl font-black uppercase tracking-tighter ${dark ? 'text-white' : 'text-neutral-900'}`}>Live Tracking</h2>
             <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest flex items-center gap-1">
-              Order ID: <span className={dark ? 'text-white' : 'text-neutral-900'}>#ZPT-{Math.floor(Math.random() * 90000 + 10000)}</span>
+              Order ID: <span className={dark ? 'text-white' : 'text-neutral-900'}>{orderId || "Loading..."}</span>
             </p>
           </div>
         </div>
